@@ -1,0 +1,1 @@
+// User records include at least: the username, hashed password and role

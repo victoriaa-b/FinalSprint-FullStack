@@ -1,0 +1,1 @@
+// Messages include at least: what was sent, who sent it and when it was sent
