@@ -23,9 +23,11 @@ app.use(session({
 }));
 
 let connectedClients = [];
+// add MongoDB connection
 
 //Note: These are (probably) not all the required routes, but are a decent starting point for the routes you'll probably need
 
+// I think this is websocket messaging 
 app.ws('/ws', (socket, request) => {    
     socket.on('message', (rawMessage) => {
         const parsedMessage = JSON.parse(rawMessage);
@@ -36,6 +38,8 @@ app.ws('/ws', (socket, request) => {
         
     });
 });
+
+// Routes - Gets and Posts
 
 app.get('/', async (request, response) => {
     response.render('index/unauthenticated');
