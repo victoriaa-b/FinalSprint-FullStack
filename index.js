@@ -37,24 +37,6 @@ mongoose
 
 //Note: These are (probably) not all the required routes, but are a decent starting point for the routes you'll probably need
 
-// WebSocket messaging
-app.ws('/ws', (socket) => {
-    socket.on('message', (rawMessage) => {
-        const parsedMessage = JSON.parse(rawMessage);
-        console.log('Message received:', parsedMessage);
-
-        // Broadcast message to all connected clients
-        connectedClients.forEach((client) => {
-            if (client !== socket) {
-                client.send(JSON.stringify(parsedMessage));
-            }
-        });
-    });
-
-    socket.on('close', () => {
-        connectedClients = connectedClients.filter((client) => client !== socket);
-        console.log('Client disconnected');
-    });
 
     connectedClients.push(socket);
     console.log('New client connected');
