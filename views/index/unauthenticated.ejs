@@ -2,7 +2,26 @@
 <!--New/Unauthenticated users are presented with a landing page prompting them to log in or sign up.--->
 <!--New users must be able to register.--->
 <!--Without having the homepage connect a socket, display the number of users currently online-->
-    <div class="main-content">
-        <h1>Welcome to the Socket Chat</h1>
-    </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatApp</title>
+</head>
+<body>
+  <h1>Welcome to the Live Chatting App</h1>
 
+  <p>Currently, there are <%= onlineUsers %> users are online!</p>
+
+  <h2>Login</h2>
+  <form action="/login" method="GET">
+    <button type="submit">Login</button>
+  </form>
+
+  <h2>Sign Up</h2>
+  <form action="/signup" method="GET">
+    <button type="submit">Sign up</button>
+  </form>
+</body>
+</html>

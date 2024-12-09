@@ -42,7 +42,17 @@ app.ws('/ws', (socket, request) => {
 // Routes - Gets and Posts
 
 app.get('/', async (request, response) => {
-    response.render('index/unauthenticated');
+    const onlineUsers = connectedClients.length; // number of user online 
+
+    let onlineMessage = " ";
+    if (onlineUsers === 0 ){
+        onlineMessage = "No one is currently online. Be the only one!";
+    } else if (onlineUsers < 2) {
+        onlineMessage = "Only a couple of users are currently online. Join them!";
+    } else {
+        onlineMessage = "Plenty of users are online right now! "
+    }
+    response.render('index/unauthenticated', {onlineUsers: onlineUsers, onlineMessage: onlineMessage});
 });
 
 app.get('/login', async (request, response) => {
