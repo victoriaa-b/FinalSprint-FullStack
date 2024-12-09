@@ -74,6 +74,9 @@ app.get('/', async (request, response) => {
     }
     response.render('index/unauthenticated', {onlineUsers: onlineUsers, onlineMessage: onlineMessage});
 });
+app.get('/', async (_req, res) => {
+    res.render('index/unauthenticated');
+});
 
 app.get('/login', (_req, res) => {
     res.render('login');
