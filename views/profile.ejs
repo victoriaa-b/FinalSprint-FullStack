@@ -1,1 +1,24 @@
 <!-- Each user will have a profile stage-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+    <header>
+        <h1>Welcome, <%= user.name %>!</h1>
+    </header>
+    <section>
+        <h2>Profile Information</h2>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Joined:</strong> <%= user.joinedDate %></p>
+    </section>
+    <footer>
+        <p>&copy; 2024 Sprint Final</p>
+    </footer>
+</body>
+</html>

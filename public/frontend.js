@@ -6,8 +6,6 @@ webSocket.addEventListener("message", (event) => {
 
 });
 
-
-// Handles updating the chat user list when a new user connects
 function onUserConnected(username) {
     const userList = document.getElementById("userList"); // take list of users
     const newUser = document.createElement("li"); // could change to ui later
@@ -17,6 +15,7 @@ function onUserConnected(username) {
 
 }
 
+
 //  Handles updating the chat list when a user disconnects from the chat
 function onUserDisconnected(username) {
     const userNode = document.getElementById(`user${username}`); // gets the user html node
@@ -25,6 +24,7 @@ function onUserDisconnected(username) {
     }
 
 }
+
 
 // Handles updating the chat when a new message is receieved
 function onNewMessageReceived(username, timestamp, message) {

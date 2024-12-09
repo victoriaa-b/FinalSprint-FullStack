@@ -1,9 +1,15 @@
-const express = require('express');
-const expressWs = require('express-ws');
-const path = require('path');
-const mongoose = require('mongoose');
-const session = require('express-session');
-const bcrypt = require('bcrypt');
+import express from 'express';
+import expressWs from 'express-ws';
+import path from 'path';
+import mongoose from 'mongoose';
+import session from 'express-session';
+import bcrypt from 'bcrypt';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import User from './models/User.js'; // Assuming you have a User model defined in models/User.js
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const PORT = 3000;
 //TODO: Replace with the URI pointing to your own MongoDB setup
@@ -24,40 +30,17 @@ app.use(session({
 
 let connectedClients = [];
 // add MongoDB connection
+mongoose
+    .connect(MONGO_URI)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => console.error('MongoDB connection error:', err));
 
 //Note: These are (probably) not all the required routes, but are a decent starting point for the routes you'll probably need
 
-// I think this is websocket messaging 
-app.ws("/ws", (socket, request) => {
-  socket.on("message", (rawMessage) => {
-    const parsedMessage = JSON.parse(rawMessage);
 
-    if (parsedMessage.type === "join") { // client connection and their username when they join will be saved
-      username = parsedMessage.username;
-      connectedClients.push({ socket, username });
-
-      // all user will know that someone new has joined the app
-      connectedClients.forEach((client) => {
-        client.socket.send(
-          JSON.stringify({
-            type: "notification",
-            message: `${username} has joined the chat!`,
-          })
-        );
-      });
-    }
-  });
-
-  socket.on("close", () => {
-    if (username) {
-      // client will be took of the online listx
-      connectedClients = connectedClients.filter(
-        (client) => client.username !== username
-      );
-    }
-  });
+    connectedClients.push(socket);
+    console.log('New client connected');
 });
-
 // Routes - Gets and Posts
 
 app.get('/', async (request, response) => {
@@ -73,36 +56,73 @@ app.get('/', async (request, response) => {
     }
     response.render('index/unauthenticated', {onlineUsers: onlineUsers, onlineMessage: onlineMessage});
 });
-
-app.get('/login', async (request, response) => {
-    
+app.get('/', async (_req, res) => {
+    res.render('index/unauthenticated');
 });
 
-app.get('/signup', async (request, response) => {
-    return response.render('signup', {errorMessage: null});
+app.get('/login', (_req, res) => {
+    res.render('login');
 });
 
-app.post('/signup', async (request, response) => {
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
 
+    // Example user authentication logic (replace with your logic)
+    const user = await User.findOne({ username });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.render('login', { errorMessage: 'Invalid credentials' });
+    }
+
+    req.session.userId = user._id;
+    res.redirect('/dashboard');
 });
 
-app.get('/dashboard', async (request, response) => {
-
-    return response.render('index/authenticated');
+app.get('/signup', async (_req, res) => {
+  res.render('signup', { errorMessage: null });
 });
 
-app.get('/profile', async (request, response) => {
-    
+app.post('/signup', async (req, res) => {
+  const { username, password } = req.body;
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+        return res.render('signup', { errorMessage: 'Username already taken' });
+    }
+
+    // Create a new user
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, password: hashedPassword });
+    await newUser.save();
+
+    res.redirect('/login');
 });
 
-app.post('/logout', (request, response) => {
-
+app.get('/dashboard', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
+    res.render('index/authenticated');
 });
 
-mongoose.connect(MONGO_URI)
-    .then(() => app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`)))
-    .catch((err) => console.error('MongoDB connection error:', err));
+app.get('/profile', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
 
+    const user = await User.findById(req.session.userId);
+    res.render('profile', { user });
+});
+
+app.post('/logout', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/');
+    });
+});
+
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
 /**
  * Handles a client disconnecting from the chat server
  * 
@@ -112,7 +132,7 @@ mongoose.connect(MONGO_URI)
  * @param {string} username The username of the client who disconnected
  */
 function onClientDisconnected(username) {
-   
+    console.log(`Client ${username} disconnected`);
 }
 
 /**
@@ -125,8 +145,9 @@ function onClientDisconnected(username) {
  * @param {string} username The username of the user who connected
  */
 function onNewClientConnected(newSocket, username) {
-    
+    console.log(`New client connected: ${username}`);
 }
+
 
 /**
  * Handles a new chat message being sent from a client
@@ -139,5 +160,5 @@ function onNewClientConnected(newSocket, username) {
  * @param {strng} id The ID of the user who sent the message
  */
 async function onNewMessage(message, username, id) {
-    
+    console.log(`New message from ${username} (ID: ${id}): ${message}`);
 }
