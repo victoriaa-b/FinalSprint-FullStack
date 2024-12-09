@@ -28,15 +28,34 @@ let connectedClients = [];
 //Note: These are (probably) not all the required routes, but are a decent starting point for the routes you'll probably need
 
 // I think this is websocket messaging 
-app.ws('/ws', (socket, request) => {    
-    socket.on('message', (rawMessage) => {
-        const parsedMessage = JSON.parse(rawMessage);
-        
-    });
+app.ws("/ws", (socket, request) => {
+  socket.on("message", (rawMessage) => {
+    const parsedMessage = JSON.parse(rawMessage);
 
-    socket.on('close', () => {
-        
-    });
+    if (parsedMessage.type === "join") { // client connection and their username when they join will be saved
+      username = parsedMessage.username;
+      connectedClients.push({ socket, username });
+
+      // all user will know that someone new has joined the app
+      connectedClients.forEach((client) => {
+        client.socket.send(
+          JSON.stringify({
+            type: "notification",
+            message: `${username} has joined the chat!`,
+          })
+        );
+      });
+    }
+  });
+
+  socket.on("close", () => {
+    if (username) {
+      // client will be took of the online listx
+      connectedClients = connectedClients.filter(
+        (client) => client.username !== username
+      );
+    }
+  });
 });
 
 // Routes - Gets and Posts
