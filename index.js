@@ -61,11 +61,11 @@ app.ws('/ws', (socket) => {
 });
 // Routes - Gets and Posts
 
-app.get('/', async (req, res) => {
+app.get('/', async (_req, res) => {
     res.render('index/unauthenticated');
 });
 
-app.get('/login', (req, res) => {
+app.get('/login', (_req, res) => {
     res.render('login');
 });
 
@@ -82,11 +82,7 @@ app.post('/login', async (req, res) => {
     res.redirect('/dashboard');
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-});
-
-app.get('/signup', async (req, res) => {
+app.get('/signup', async (_req, res) => {
   res.render('signup', { errorMessage: null });
 });
 
@@ -129,10 +125,9 @@ app.post('/logout', (req, res) => {
     });
 });
 
-mongoose.connect(MONGO_URI)
-    .then(() => app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`)))
-    .catch((err) => console.error('MongoDB connection error:', err));
-
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+});
 /**
  * Handles a client disconnecting from the chat server
  * 
@@ -142,7 +137,7 @@ mongoose.connect(MONGO_URI)
  * @param {string} username The username of the client who disconnected
  */
 function onClientDisconnected(username) {
-   
+    console.log(`Client ${username} disconnected`);
 }
 
 /**
@@ -155,8 +150,9 @@ function onClientDisconnected(username) {
  * @param {string} username The username of the user who connected
  */
 function onNewClientConnected(newSocket, username) {
-    
+    console.log(`New client connected: ${username}`);
 }
+
 
 /**
  * Handles a new chat message being sent from a client
@@ -169,5 +165,5 @@ function onNewClientConnected(newSocket, username) {
  * @param {strng} id The ID of the user who sent the message
  */
 async function onNewMessage(message, username, id) {
-    
+    console.log(`New message from ${username} (ID: ${id}): ${message}`);
 }

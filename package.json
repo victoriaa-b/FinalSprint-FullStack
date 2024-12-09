@@ -1,5 +1,5 @@
 {
-  "name": "keyin-final-chat app",
+  "name": "finalsprint-fullstack",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,8 @@
     "express-ws": "^5.0.2",
     "mongod": "^2.0.0",
     "mongodb": "^6.11.0",
-    "mongoose": "^8.8.4"
+    "mongoose": "^8.8.4",
+    "prop-types": "^15.8.1",
+    "type": "module"
   }
 }
