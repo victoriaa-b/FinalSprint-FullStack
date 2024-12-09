@@ -5,40 +5,30 @@ webSocket.addEventListener("message", (event) => {
 
 });
 
-/**
- * Handles updating the chat user list when a new user connects
- * 
- * This function isn't necessary and should be deleted if unused. But it's left as a hint to how you might want 
- * to handle users connecting
- * 
- * @param {string} username The username of the user who joined the chat
- */
+//This function isn't necessary and should be deleted if unused. But it's left as a hint to how you might want 
+// to handle users connecting
+
 function onUserConnected(username) {
+    const userList = document.getElementById("userList"); // take list of users
+    const newUser = document.createElement("li"); // could change to ui later
+    newUser.textContent = username;
+    newUser.setAttribute("id", `user${username}`); // gives each user their own id
+    userList.appendChild(newUser); // add new user to the list
 
 }
 
-/**
- * Handles updating the chat list when a user disconnects from the chat
- * 
- * This function isn't necessary and should be deleted if unused. But it's left as a hint to how you might want 
- * to handle users disconnecting
- * 
- * @param {string} username The username of the user who left the chat
- */
+
+//  Handles updating the chat list when a user disconnects from the chat
 function onUserDisconnected(username) {
+    const userNode = document.getElementById(`user${username}`); // gets the user html node
+    if (userNode){
+        userNode.remove(); // removes the username/node from the user list 
+    }
 
 }
 
-/**
- * Handles updating the chat when a new message is receieved
- * 
- * This function isn't necessary and should be deleted if unused. But it's left as a hint to how you might want 
- * to handle new messages arriving
- * 
- * @param {string} username The username of the user who sent the message
- * @param {string} timestamp When the message was sent
- * @param {string} message The message that was sent
- */
+
+// Handles updating the chat when a new message is receieved
 function onNewMessageReceived(username, timestamp, message) {
 
 }
