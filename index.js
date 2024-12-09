@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 
+
 const PORT = 3000;
 //TODO: Replace with the URI pointing to your own MongoDB setup
 const MONGO_URI = 'mongodb://localhost:27017/chatAppDB';
@@ -71,7 +72,7 @@ app.get('/', async (request, response) => {
     } else {
         onlineMessage = "Plenty of users are online right now! "
     }
-    response.render('index/unauthenticated', {onlineUsers: onlineUsers, onlineMessage: onlineMessage});
+    response.render('unauthenticated', {onlineUsers: onlineUsers, onlineMessage: onlineMessage});
 });
 
 app.get('/login', async (request, response) => {
