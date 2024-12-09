@@ -5,7 +5,7 @@ webSocket.addEventListener("message", (event) => {
     const eventData = JSON.parse(event.data);
 
 });
-
+/// load
 
 // Handles updating the chat user list when a new user connects
 function onUserConnected(username) {
