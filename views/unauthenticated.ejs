@@ -2,21 +2,27 @@
 <!--New/Unauthenticated users are presented with a landing page prompting them to log in or sign up.--->
 <!--New users must be able to register.--->
 <!--Without having the homepage connect a socket, display the number of users currently online-->
+<!--trying to layout -->
 <%- include('partials/header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome - Live Chatting App</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
 <body>
-  <h1>Welcome to the Live Chatting App</h1>
-
-  <p>Currently, there are <%= onlineUsers %> users are online!</p>
-   <p><%= onlineMessage %></p>
-
-  <h2>Login</h2>
-  <form action="/login" method="GET">
-    <button type="submit">Login</button>
-  </form>
-
-  <h2>Sign Up</h2>
-  <form action="/signup" method="GET">
-    <button type="submit">Sign up</button>
-  </form>
+    <div class="main-content">
+        <h1>Welcome to the Live Chatting App</h1>
+        
+        <p>Currently, there <%= onlineUsers %> users online!</p>
+        <p><%= onlineMessage %></p>
+        
+        <div class="actions">
+            <a href="/chat" class="action-button">Go to Chat</a>
+        </div>
+    </div>
 </body>
 </html>

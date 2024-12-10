@@ -1,0 +1,42 @@
+<%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Chat App</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="main-content">
+        <h1>Login</h1>
+        <p>Please, fill in your credentials to log in.</p>
+        
+        <form action="/login" method="POST" style="width: 300px;">
+           
+            <% if (errorMessage) { %>
+                <p class="error-message"><%= errorMessage %></p>
+            <% } %>
+
+            <div class="form-input-container">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter username" required>
+            </div>
+            
+            <div class="form-input-container">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+          
+            <button type="submit" class="action-button full-width">Login</button>
+        </form>
+
+        
+        <p style="font-size: 16px; margin-top: 30px;">
+            Don't have an account?&nbsp;
+            <a href="/signup" class="register-link">Sign up!</a>
+        </p>
+    </div>
+
+</body>
+</html>

@@ -13,7 +13,7 @@ const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
 const app = express();
 expressWs(app);
 
-// Middleware 
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -27,21 +27,27 @@ app.use(
   })
 );
 
-let connectedClients = [];
-// add MongoDB connection
+// Inject session user into response locals
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  next();
+});
 
-// I think this is websocket messaging 
+let connectedClients = [];
+
+// WebSocket Messaging
 app.ws("/ws", (socket) => {
-  let username; 
+  let username;
 
   socket.on("message", (rawMessage) => {
     const parsedMessage = JSON.parse(rawMessage);
 
-    if (parsedMessage.type === "join") { // client connection and their username when they join will be saved
+    if (parsedMessage.type === "join") {
+      // Client connection and their username when they join will be saved
       username = parsedMessage.username;
       connectedClients.push({ socket, username });
 
-      // all user will know that someone new has joined the app
+      // Notify all users that someone new has joined the app
       connectedClients.forEach((client) => {
         client.socket.send(
           JSON.stringify({
@@ -68,7 +74,7 @@ app.ws("/ws", (socket) => {
 
   socket.on("close", () => {
     if (username) {
-      // client will be took remove from online list
+      // Remove the client from the online list
       connectedClients = connectedClients.filter(
         (client) => client.username !== username
       );
@@ -77,17 +83,25 @@ app.ws("/ws", (socket) => {
 });
 
 // Routes Gets and Posts
+// clean up this mess ME
 
-app.get("/", (req, res) => {
-  const onlineUsers = connectedClients.length;
-  const onlineMessage =
-    onlineUsers === 0
-      ? "No one is currently online. Be the only one!"
-      : onlineUsers < 2
-      ? "Only a couple of users are currently online. Join them!"
-      : "Plenty of users are online right now!";
 
-  res.render("unauthenticated", { onlineUsers, onlineMessage });
+// GETS
+app.get("/", async (request, response) => {
+  const onlineUsers = connectedClients.length; // number of user online
+
+  let onlineMessage = " ";
+  if (onlineUsers === 0) {
+    onlineMessage = "No one is currently online. Be the only one!";
+  } else if (onlineUsers < 2) {
+    onlineMessage = "Only a couple of users are currently online. Join them!";
+  } else {
+    onlineMessage = "Plenty of users are online right now! ";
+  }
+  response.render("unauthenticated", {
+    onlineUsers: onlineUsers,
+    onlineMessage: onlineMessage,
+  });
 });
 
 app.get("/login", (req, res) => {
@@ -133,8 +147,9 @@ app.post("/signup", async (req, res) => {
     const newUser = new User({
       username,
       password: hashedPassword,
-      role: "user",
+      role // role is what user selects
     });
+    // Save user to the database
     await newUser.save();
     res.redirect("/login");
   } catch (error) {
@@ -159,19 +174,16 @@ app.get("/admin-dashboard", [isLoggedIn, isAdmin], (req, res) => {
   res.render("admin-dashboard", { user: req.session.user });
 });
 
-app.post("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) {
-      return res.redirect("/dashboard");
-    }
-    res.clearCookie("connect.sid");
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
     res.redirect("/");
   });
 });
 
-// MongoDB connection
+// MongoDB Connection
 mongoose
-  .connect(MONGO_URI)
+  .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() =>
     app.listen(PORT, () =>
       console.log(`Server running on http://localhost:${PORT}`)
