@@ -1,5 +1,7 @@
 // Middleware checks
 
+
+
 // Checks if the user is logged into their account
 function isLoggedIn(req, res,next){
     if(req.session.user) {

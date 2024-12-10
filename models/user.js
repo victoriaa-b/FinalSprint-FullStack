@@ -3,12 +3,13 @@
 
 const mongoose = require('mongoose');
 const { array } = require('prop-types');
+const bcrypt = require("bcryptjs");
 
 const userModel = new mongoose.Schema({
   email: { type: String, required: true, unique: true }, // Need the user to have a email and not an already existing one
   username: { type: String, required: true, unique: true }, // need a orginal username
   password: { type: String, required: true }, // account can have matching passwords
-  role: { type: String, enum: [ "admin", "buyer", "seller"], required: true },
+  role: { type: String, enum: [ "admin", "user"], required: true },
 });
 
 // Need to have the password harsh - DOUBLE CHECK  

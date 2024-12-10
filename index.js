@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const { isLoggedIn, isAdmin } = require("./controllers/userController");
 const User = require("./models/user"); // Ensure correct path to the User model
 
+
 const PORT = 3003;
 const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
 
@@ -123,8 +124,8 @@ app.post("/login", async (req, res) => {
       role: user.role,
     };
     res.redirect("/dashboard");
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error(error);
     res.status(500).send("Internal server error");
   }
 });
@@ -133,8 +134,9 @@ app.get("/signup", (req, res) => {
   res.render("signup", { errorMessage: null });
 });
 
+// NOTE: it allows for sign up but wont let you login
 app.post("/signup", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, email, role } = req.body;
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
@@ -147,7 +149,8 @@ app.post("/signup", async (req, res) => {
     const newUser = new User({
       username,
       password: hashedPassword,
-      role // role is what user selects
+      email,
+      role: role || "user", // role is what user selects if not default
     });
     // Save user to the database
     await newUser.save();
@@ -162,8 +165,26 @@ app.get("/dashboard", isLoggedIn, (req, res) => {
   res.render("authenticated", { user: req.session.user });
 });
 
-app.get("/profile", isLoggedIn, (req, res) => {
-  res.render("profile", { user: req.session.user });
+app.get("/profile", isLoggedIn, async (req, res) => {
+  try {
+    const { username } = req.params; // get user from html
+    const loggedUser = req.session.user; // need the user thats currently logged in
+
+    const userRequest = await User.findOne({ username });
+
+    if (!userRequest) {
+      return res.status(404).send("The User could be not found");
+    }
+
+    res.render("profile", {
+      loggedUser, 
+      userRequest: username, 
+      joinDate: userRequest.joinDate // when user account was created 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Error fetching profile");
+  }
 });
 
 app.get("/chat", isLoggedIn, (req, res) => {
