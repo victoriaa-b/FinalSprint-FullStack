@@ -1,5 +1,6 @@
 const User = require("../models/user");
 
+// For user to register
 exports.register = async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -8,7 +9,10 @@ exports.register = async (req, res) => {
       return res.status(400).send("Username already taken");
     }
 
-    const newUser = new User({ username, password });
+    // password needs to be hashed with bcrypt 
+    const hashPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({ username, password: hashPassword });
+
     await newUser.save();
     res.redirect("/user/login");
   } catch (error) {
@@ -16,6 +20,7 @@ exports.register = async (req, res) => {
   }
 };
 
+//  For user to login
 exports.login = async (req, res) => {
   const { username, password } = req.body;
   try {
