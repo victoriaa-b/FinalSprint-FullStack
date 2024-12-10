@@ -14,7 +14,7 @@ exports.register = async (req, res) => {
 
     // password needs to be hashed with bcrypt 
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ username, password: hashPassword });
+    const newUser = new User({ username, password: hashPassword, email, role: role || "user"});
 
     await newUser.save();
     res.redirect("/user/login");
@@ -32,7 +32,11 @@ exports.login = async (req, res) => {
       return res.status(400).send("Invalid username or password");
     }
 
-    req.session.user = user;
+    req.session.user = {
+        username: user.username,
+        role: user.role,
+    };
+
     res.redirect("/chat");
   } catch (error) {
     res.status(500).send("Error logging in");

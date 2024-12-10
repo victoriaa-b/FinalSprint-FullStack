@@ -134,6 +134,7 @@ app.get("/signup", (req, res) => {
   res.render("signup", { errorMessage: null });
 });
 
+// SOMEONE TAKE THIS PLS
 // NOTE: it allows for sign up but wont let you login
 app.post("/signup", async (req, res) => {
   const { username, password, email, role } = req.body;
