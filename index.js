@@ -111,24 +111,56 @@ app.get("/login", (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
   try {
     const user = await User.findOne({ username });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res
-        .status(400)
-        .render("login", { errorMessage: "Invalid credentials" });
+
+    // Check if user exists
+    if (!user) {
+      console.log("User not found");
+      return res.status(400).render("login", { errorMessage: "Invalid credentials" });
     }
 
+    // Check if the hash starts with $2a$ (old bcrypt version)
+    const isOldBcryptVersion = user.password.startsWith('$2a$');
+    
+    let match = false;
+
+    // If the password was hashed with an older bcrypt version, we need to rehash the entered password
+    if (isOldBcryptVersion) {
+      // Rehash the entered password with bcrypt's latest version ($2b$)
+      const rehashedPassword = await bcrypt.hash(password, 10);
+
+      // Compare the rehashed password with the stored hash
+      match = await bcrypt.compare(password, rehashedPassword);
+      console.log('Rehashed Password Match:', match); // Log if rehashed password matches
+    } else {
+      // Proceed with the usual password comparison (password already hashed with $2b$ or latest version)
+      match = await bcrypt.compare(password, user.password);
+      console.log('Password Match:', match); // Log the result of the comparison
+    }
+
+    if (!match) {
+      console.log("Password mismatch");
+      return res.status(400).render("login", { errorMessage: "Invalid credentials" });
+    }
+
+    // Set session and redirect on successful login
     req.session.user = {
       username: user.username,
       role: user.role,
     };
+
+    console.log("Session after login:", req.session);
     res.redirect("/dashboard");
   } catch (error) {
-    console.error(error);
+    console.error("Login Error:", error);
     res.status(500).send("Internal server error");
   }
 });
+
+
+
 
 app.get("/signup", (req, res) => {
   res.render("signup", { errorMessage: null });
@@ -147,12 +179,14 @@ app.post("/signup", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("Hashed Password:", hashedPassword);
     const newUser = new User({
       username,
       password: hashedPassword,
       email,
       role: role || "user", // role is what user selects if not default
     });
+    console.log("Hashed Password:", hashedPassword);
     // Save user to the database
     await newUser.save();
     res.redirect("/login");
