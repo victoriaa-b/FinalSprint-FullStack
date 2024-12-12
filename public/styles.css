@@ -1,11 +1,13 @@
+/* Keep names with - inorder to follow template and not confuses us */
 body {
-    background: linear-gradient(90deg, rgba(93,142,251,1) 0%, rgba(93,142,251,1) 30%, rgba(0,212,255,1) 100%);
+    background: #F5EFFF;
     height: 100%;
     padding: 0px;
     margin: 0px;
-    font-family: 'Lato', sans-serif;
+    font-family: "Gabarito", sans-serif;
     display: flex;
-    color: #F6F6F6;
+    color: #72195a;
+    text-shadow: 1px 1px 1px #F6F6F6;
     flex-direction: column;
 }
 
@@ -57,7 +59,7 @@ body .main-content, body header {
     padding: 5px;
     font-size: 14px;
     width: calc(100% - 5px *2);
-    min-height: 2em;
+    min-height: 32px;
 }
 
 .main-content button {
@@ -92,5 +94,77 @@ body .main-content, body header {
 }
 
 header{
-    background-color: pink; 
+    background-color: #cdc1ff; 
 }
+
+
+.profile-box {
+    background-color: #cdc1ff; 
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); 
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.profile-box h1 {
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.profile-box p {
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+.profile-box form {
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.profile-box form .form-input-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    width: 80%;
+}
+
+.profile-box form input {
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 14px;
+    width: 80%; 
+    min-height: 32px;
+}
+
+.profile-box .action-button {
+    background: #F6F6F6;
+    color: #5D8EFB;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 18px;
+    text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    width: 85%; 
+    margin-top: 15px;
+}
+
+.profile-box .action-button:hover {
+    background: #f6f6f6cc;
+    color: #5d8efbcc;
+    cursor: pointer;
+}
+
+.register-link {
+    color: #5D8EFB;
+    text-decoration: none;
+}
+

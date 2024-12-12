@@ -8,6 +8,7 @@ const { isLoggedIn, isAdmin } = require("./controllers/userController");
 const User = require("./models/user"); // Ensure correct path to the User model
 
 
+
 const PORT = 3003;
 const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
 
@@ -198,23 +199,25 @@ app.post("/signup", async (req, res) => {
 
 app.get("/dashboard", isLoggedIn, (req, res) => {
   res.render("authenticated", { user: req.session.user });
-});
+})
 
-app.get("/profile", isLoggedIn, async (req, res) => {
+
+app.get("/profile/:username", isLoggedIn, async (req, res) => {
   try {
-    const { username } = req.params; // get user from html
-    const loggedUser = req.session.user; // need the user thats currently logged in
+    const { username } = req.params; 
+    const loggedUser = req.session.user; 
 
     const userRequest = await User.findOne({ username });
-
     if (!userRequest) {
-      return res.status(404).send("The User could be not found");
+      return res.status(404).send("The User could not be found");
     }
 
+   const formattedJoinDate = userRequest.joinDate.toLocaleDateString(); 
+
     res.render("profile", {
-      loggedUser, 
-      userRequest: username, 
-      joinDate: userRequest.joinDate // when user account was created 
+      loggedUser,
+      userRequest,
+     joinDate: formattedJoinDate, 
     });
   } catch (error) {
     console.error(error);

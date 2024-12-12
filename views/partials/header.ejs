@@ -7,26 +7,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400..900&family=Limelight&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
 
-    <div class="header-container">
-        <h1 class="logo">ChatterBox</h1>
-        <nav class="navbar">
-            <% if (user) { %>
-                <a href="/profile/me">My Profile</a>
-                <a href="/chat">Chat</a>
-                <% if (user.role === 'admin') { %>
-                    <a href="/admin/dashboard">Admin Dashboard</a>
-                <% } %>
-                <a href="/logout" class="logout-button">Logout</a>
-            <% } else { %>
-                <a href="/">Home</a>
-                <a href="/signup">Register</a>
-                <a href="/login">Login</a>
+
+<div class="header-container">
+    <h1 class="logo">ChatterBox</h1>
+    <nav class="navbar">
+        <% if (user) { %>
+            <a href="/profile/<%= user.username %>">My Profile</a>
+            <a href="/chat">Chat</a>
+            <% if (user.role === 'admin') { %>
+                <a href="/admin/dashboard">Admin Dashboard</a>
             <% } %>
-        </nav>
-    </div>
+            <a href="/logout" class="logout-button">Logout</a>
+        <% } else { %>
+            <a href="/">Home</a>
+            <a href="/signup">Register</a>
+            <a href="/login">Login</a>
+        <% } %>
+    </nav>
+</div>
 </header>

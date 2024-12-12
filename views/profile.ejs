@@ -1,29 +1,33 @@
 <!-- Each user will have a profile stage-->
- <!-- Join date and username need to be displauy-->
-  <!-- Maybe? add something else to the page-->
+<!-- Join date and username need to be displauy-->
+<!-- Maybe? add something else to the page-->
  <!-- Double Check -->
- <%- include('partials/header') %>
+<%- include('partials/header') %>
 
 <body>
-  <h1>Profile</h1>
-  
-  <div>
-    <p>You are currently signed in as: <strong><%= loggedUser.username %></strong></p>
+  <div class="main-content">
+    <div class="profile-box">
+      <h1>Profile</h1>
+
+      <div>
+        <p>You are currently signed in as: <strong><%= loggedUser.username %></strong></p>
+      </div>
+
+    <!--Depends on whos being viewed-->
+      <% if (loggedUser.username === userRequest.username) { %>
+        <!-- Maybe add something here-->
+      <% } else { %>
+        <h2><%= userRequest.username %>'s Profile</h2>
+      <% } %>
+
+      <div>
+        <p><strong>Username:</strong> <%= userRequest.username %></p>
+        <p><strong>User Joined on:</strong> <%= joinDate %></p>
+      </div>
+
+      <br>
+      <a href="/dashboard" class="action-button">Go back to Dashboard</a>
+    </div>
   </div>
-
-  <!--- Which profile is the user seeing-->
-  <% if (loggedUser.username === userRequest.username) { %>
-    <h2>Your Profile</h2>
-  <% } else { %>
-    <h2><%= userRequest.username %>'s Profile</h2>
-  <% } %>
-
-  <div>
-    <p><strong>Username:</strong> <%= userRequest.username %></p>
-    <p><strong>User Joined on:</strong> <%= joinDate.toLocaleDateString() %></p> <!-- Format date as needed -->
-  </div>
-
-  <br>
-  <a href="/dashboard">Go back to Dashboard</a>
 </body>
 </html>
