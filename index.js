@@ -153,7 +153,7 @@ app.post("/login", async (req, res) => {
     };
 
     console.log("Session after login:", req.session);
-    res.redirect("/dashboard");
+    res.redirect("/chat");
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).send("Internal server error");
@@ -225,9 +225,26 @@ app.get("/profile/:username", isLoggedIn, async (req, res) => {
   }
 });
 
-app.get("/chat", isLoggedIn, (req, res) => {
-  res.render("chat", { user: req.session.user });
+app.get('/chat', (req, res) => {
+  const loggedUser = req.session.user; // Assuming user info is stored in session
+  const loggedUsers = getLoggedUsers(); // Function to retrieve logged-in users
+
+  if (loggedUser) {
+      res.render('chat', { loggedUser, loggedUsers }); // Pass both variables to the template
+  } else {
+      res.redirect('/login'); // Redirect to login if not logged in
+  }
 });
+
+// Example function to fetch logged-in users (replace this with actual implementation)
+function getLoggedUsers() {
+  // Mocked list of users for now
+  return [
+      { username: 'Alice' },
+      { username: 'Bob' },
+      { username: 'Charlie' },
+  ];
+};
 
 app.get("/admin-dashboard", [isLoggedIn, isAdmin], (req, res) => {
   res.render("admin-dashboard", { user: req.session.user });

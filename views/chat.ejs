@@ -5,15 +5,45 @@
 <!--Message need timestamp and user name-->
 <!--Need to double check wen socket connections-->
 <%- include('partials/header') %>
-<h2>Welcome to the Chat Room</h2>
+<div class="container">
+  <!-- Sidebar for logged-in users -->
+  <aside class="sidebar">
+    <h3>Currently Logged-in Users</h3>
+    <ul id="user-list">
+      <% if (loggedUsers && loggedUsers.length > 0) { %>
+        <% loggedUsers.forEach(user => { %>
+          <li><%= user.username %></li>
+        <% }) %>
+      <% } else { %>
+        <li>No users are currently logged in.</li>
+      <% } %>
+    </ul>
+  </aside>
 
-<!-- The user who is logged in-->
-  <div>
-    <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
-  </div>
+  <!-- Main content for chat -->
+  <main class="main-content">
+    <!-- User information in the middle -->
+    <section class="welcome-section">
+      <div>
+        <h2>Welcome to the Chat Room</h2>
+        <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
+      </div>
+    </section>
 
-  <!---List of all current users-->
-  <!-- Chatbox-->
+    <!-- Chat input at the bottom -->
+    <footer class="chat-footer">
+      <form id="chat-form">
+        <input 
+          type="text" 
+          id="chat-message" 
+          name="message" 
+          placeholder="Type your message..." 
+          required
+        />
+        <button type="submit">Send</button>
+      </form>
+    </footer>
+  </main>
+</div>
 
-  <!-- Need for real time chats messages-->
 <script src="/frontend.js" type="application/javascript"></script>
