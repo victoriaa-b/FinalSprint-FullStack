@@ -7,8 +7,6 @@ const bcrypt = require("bcrypt");
 const { isLoggedIn, isAdmin } = require("./controllers/userController");
 const User = require("./models/user"); // Ensure correct path to the User model
 
-
-
 const PORT = 3003;
 const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
 
@@ -21,6 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
+
 app.use(
   session({
     secret: "chat-app-secret",
@@ -45,7 +44,6 @@ app.ws("/ws", (socket) => {
     const parsedMessage = JSON.parse(rawMessage);
 
     if (parsedMessage.type === "join") {
-      // Client connection and their username when they join will be saved
       username = parsedMessage.username;
       connectedClients.push({ socket, username });
 
@@ -59,7 +57,8 @@ app.ws("/ws", (socket) => {
         );
       });
     } else if (parsedMessage.type === "message") {
-      // Broadcast chat messages
+      // Broadcast chat messages with username and timestamp
+      const timestamp = new Date().toLocaleTimeString();
       connectedClients.forEach((client) => {
         if (client.socket !== socket) {
           client.socket.send(
@@ -67,6 +66,7 @@ app.ws("/ws", (socket) => {
               type: "message",
               username,
               message: parsedMessage.message,
+              timestamp, // Add timestamp to the message
             })
           );
         }
@@ -84,28 +84,30 @@ app.ws("/ws", (socket) => {
   });
 });
 
-// Routes Gets and Posts
-// clean up this mess ME
 
+// Routes
 
 // GETS
-app.get("/", async (request, response) => {
-  const onlineUsers = connectedClients.length; // number of user online
 
+// Home page
+app.get("/", async (req, res) => {
+  const onlineUsers = connectedClients.length;
   let onlineMessage = " ";
   if (onlineUsers === 0) {
     onlineMessage = "No one is currently online. Be the only one!";
   } else if (onlineUsers < 2) {
     onlineMessage = "Only a couple of users are currently online. Join them!";
   } else {
-    onlineMessage = "Plenty of users are online right now! ";
+    onlineMessage = "Plenty of users are online right now!";
   }
-  response.render("unauthenticated", {
+
+  res.render("unauthenticated", {
     onlineUsers: onlineUsers,
     onlineMessage: onlineMessage,
   });
 });
 
+// Login route
 app.get("/login", (req, res) => {
   res.render("login", { errorMessage: null });
 });
@@ -116,43 +118,25 @@ app.post("/login", async (req, res) => {
   try {
     const user = await User.findOne({ username });
 
-    // Check if user exists
     if (!user) {
-      console.log("User not found");
       return res.status(400).render("login", { errorMessage: "Invalid credentials" });
     }
 
-    // Check if the hash starts with $2a$ (old bcrypt version)
     const isOldBcryptVersion = user.password.startsWith('$2a$');
-    
     let match = false;
 
-    // If the password was hashed with an older bcrypt version, we need to rehash the entered password
     if (isOldBcryptVersion) {
-      // Rehash the entered password with bcrypt's latest version ($2b$)
       const rehashedPassword = await bcrypt.hash(password, 10);
-
-      // Compare the rehashed password with the stored hash
       match = await bcrypt.compare(password, rehashedPassword);
-      console.log('Rehashed Password Match:', match); // Log if rehashed password matches
     } else {
-      // Proceed with the usual password comparison (password already hashed with $2b$ or latest version)
       match = await bcrypt.compare(password, user.password);
-      console.log('Password Match:', match); // Log the result of the comparison
     }
 
     if (!match) {
-      console.log("Password mismatch");
       return res.status(400).render("login", { errorMessage: "Invalid credentials" });
     }
 
-    // Set session and redirect on successful login
-    req.session.user = {
-      username: user.username,
-      role: user.role,
-    };
-
-    console.log("Session after login:", req.session);
+    req.session.user = { username: user.username, role: user.role };
     res.redirect("/chat");
   } catch (error) {
     console.error("Login Error:", error);
@@ -160,97 +144,78 @@ app.post("/login", async (req, res) => {
   }
 });
 
-
-
-
+// Signup route
 app.get("/signup", (req, res) => {
   res.render("signup", { errorMessage: null });
 });
 
-// SOMEONE TAKE THIS PLS
-// NOTE: it allows for sign up but wont let you login
 app.post("/signup", async (req, res) => {
   const { username, password, email, role } = req.body;
+
   try {
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res
-        .status(400)
-        .render("signup", { errorMessage: "Username already taken" });
+      return res.status(400).render("signup", { errorMessage: "Username already taken" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Hashed Password:", hashedPassword);
     const newUser = new User({
       username,
       password: hashedPassword,
       email,
-      role: role || "user", // role is what user selects if not default
+      role: role || "user", // Default to "user" if no role is provided
     });
-    console.log("Hashed Password:", hashedPassword);
-    // Save user to the database
+
     await newUser.save();
     res.redirect("/login");
   } catch (error) {
-    console.error(error);
+    console.error("Signup Error:", error);
     res.status(500).send("Error registering user");
   }
 });
 
+// Dashboard and Profile routes
 app.get("/dashboard", isLoggedIn, (req, res) => {
   res.render("authenticated", { user: req.session.user });
-})
-
+});
 
 app.get("/profile/:username", isLoggedIn, async (req, res) => {
   try {
-    const { username } = req.params; 
-    const loggedUser = req.session.user; 
+    const { username } = req.params;
+    const loggedUser = req.session.user;
 
     const userRequest = await User.findOne({ username });
     if (!userRequest) {
       return res.status(404).send("The User could not be found");
     }
 
-   const formattedJoinDate = userRequest.joinDate.toLocaleDateString(); 
+    const formattedJoinDate = userRequest.joinDate.toLocaleDateString();
 
     res.render("profile", {
       loggedUser,
       userRequest,
-     joinDate: formattedJoinDate, 
+      joinDate: formattedJoinDate,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Profile Error:", error);
     res.status(500).send("Error fetching profile");
   }
 });
 
-app.get('/chat', (req, res) => {
-  const loggedUser = req.session.user; // Assuming user info is stored in session
-  const loggedUsers = getLoggedUsers(); // Function to retrieve logged-in users
+// Chat route
+app.get('/chat', isLoggedIn, (req, res) => {
+  const loggedUser = req.session.user;
+  const loggedUsers = connectedClients.map(client => client.username);
 
-  if (loggedUser) {
-      res.render('chat', { loggedUser, loggedUsers }); // Pass both variables to the template
-  } else {
-      res.redirect('/login'); // Redirect to login if not logged in
-  }
+  res.render('chat', { loggedUser, loggedUsers });
 });
 
-// Example function to fetch logged-in users (replace this with actual implementation)
-function getLoggedUsers() {
-  // Mocked list of users for now
-  return [
-      { username: 'Alice' },
-      { username: 'Bob' },
-      { username: 'Charlie' },
-  ];
-};
-
+// Admin dashboard route
 app.get("/admin-dashboard", [isLoggedIn, isAdmin], (req, res) => {
   res.render("admin-dashboard", { user: req.session.user });
 });
 
-
+// Logout route
 app.get("/logout", (req, res) => {
   req.session.destroy(() => {
     res.redirect("/");
@@ -260,9 +225,12 @@ app.get("/logout", (req, res) => {
 // MongoDB Connection
 mongoose
   .connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() =>
-    app.listen(PORT, () =>
-      console.log(`Server running on http://localhost:${PORT}`)
-    )
-  )
-  .catch((err) => console.error("MongoDB connection error:", err));
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on http://localhost:${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+

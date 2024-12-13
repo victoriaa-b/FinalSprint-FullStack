@@ -5,6 +5,7 @@
 <!--Message need timestamp and user name-->
 <!--Need to double check wen socket connections-->
 <%- include('partials/header') %>
+
 <div class="container">
   <!-- Sidebar for logged-in users -->
   <aside class="sidebar">
@@ -22,11 +23,15 @@
 
   <!-- Main content for chat -->
   <main class="main-content">
-    <!-- User information in the middle -->
-    <section class="welcome-section">
-      <div>
-        <h2>Welcome to the Chat Room</h2>
-        <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
+    <!-- Current user info -->
+    <section class="user-info">
+      <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
+    </section>
+
+    <!-- Chat display area -->
+    <section class="chat-display">
+      <div id="messages" class="messages">
+        <!-- Messages will be displayed here -->
       </div>
     </section>
 
@@ -45,5 +50,90 @@
     </footer>
   </main>
 </div>
+
+<!-- Pass the loggedUser data from EJS to JavaScript -->
+<script>
+  const loggedUser = <%- JSON.stringify(loggedUser) %>;
+  
+  console.log(loggedUser);  // Verify that the username is correctly passed
+
+  const socket = new WebSocket("ws://localhost:3000/ws");
+
+  const messageForm = document.getElementById('chat-form');
+  const messageInput = document.getElementById('chat-message');
+  const messagesContainer = document.getElementById('messages');
+
+  // Notify when user joins
+  socket.addEventListener('open', () => {
+    socket.send(JSON.stringify({ type: 'join', username: loggedUser.username }));
+  });
+
+  // Handle incoming messages
+  socket.addEventListener('message', (event) => {
+    const data = JSON.parse(event.data);
+
+    if (data.type === 'message') {
+      displayMessage(data.username, data.message, data.timestamp);
+    } else if (data.type === 'notification') {
+      displayNotification(data.message);
+    }
+  });
+
+  // Send message when form is submitted
+  messageForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const message = messageInput.value.trim();
+
+    if (message) {
+      const timestamp = new Date().toLocaleTimeString();
+
+      // Send the message with username and timestamp
+      socket.send(JSON.stringify({
+        type: 'message',
+        username: loggedUser.username,
+        message,
+        timestamp,
+      }));
+
+      // Display the sent message immediately (optional)
+      displayMessage(loggedUser.username, message, timestamp);
+    } else {
+      console.warn('Empty message cannot be sent.');
+    }
+
+    // Clear the input field after sending the message
+    messageInput.value = '';
+  });
+
+  // Function to display a message in the chat
+  function displayMessage(username, message, timestamp) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+
+    // Render the message with the username and timestamp
+    messageElement.innerHTML = `
+      <p class="username">${username} <span class="timestamp">${timestamp}</span></p>
+      <p>${message}</p>
+    `;
+
+    messagesContainer.appendChild(messageElement);
+
+    // Scroll to the bottom when a new message is added
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  // Function to display notifications (e.g., user joins)
+  function displayNotification(message) {
+    const notificationElement = document.createElement('div');
+    notificationElement.classList.add('message');
+    notificationElement.style.backgroundColor = '#e0e0e0'; // Style for notifications
+    notificationElement.innerHTML = `<p>${message}</p>`;
+    messagesContainer.appendChild(notificationElement);
+
+    // Scroll to the bottom when a new message is added
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+</script>
 
 <script src="/frontend.js" type="application/javascript"></script>

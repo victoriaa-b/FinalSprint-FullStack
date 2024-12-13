@@ -1,48 +1,85 @@
-// Double check logic 
-const webSocket = new WebSocket("ws://localhost:3000/ws");
+const socket = new WebSocket("ws://localhost:3000/ws");
 
-webSocket.addEventListener("message", (event) => {
-    const eventData = JSON.parse(event.data);
+const messageForm = document.getElementById('chat-form');
+const messageInput = document.getElementById('chat-message');
+const messagesContainer = document.getElementById('messages');
 
+// Check if the required elements exist
+if (!messageForm || !messageInput || !messagesContainer) {
+  console.error("Required HTML elements (chat-form, chat-message, messages) not found.");
+}
+
+// Notify when user joins (username will be passed from EJS in the inline script)
+socket.addEventListener('open', () => {
+  console.log('WebSocket connection established.');
+  // Assuming loggedUser is globally available because it's passed from the inline script
+  socket.send(JSON.stringify({ type: 'join', username: loggedUser.username }));
 });
-/// load
 
-// Handles updating the chat user list when a new user connects
-function onUserConnected(username) {
-    const userList = document.getElementById("userList"); // take list of users
-    const newUser = document.createElement("li"); // could change to ui later
-    newUser.textContent = username;
-    newUser.setAttribute("id", `user${username}`); // gives each user their own id
-    userList.appendChild(newUser); // add new user to the list
+// Handle incoming messages
+socket.addEventListener('message', (event) => {
+  const data = JSON.parse(event.data);
+  console.log('Received data:', data); // Log incoming message
 
+  if (data.type === 'message') {
+    displayMessage(data.username, data.message, data.timestamp);
+  } else if (data.type === 'notification') {
+    displayNotification(data.message);
+  }
+});
+
+// Send message when form is submitted
+messageForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+
+  const message = messageInput.value.trim();
+
+  if (message) {
+    const timestamp = new Date().toLocaleTimeString();
+
+    // Send the message with username and timestamp
+    socket.send(JSON.stringify({
+      type: 'message',
+      username: loggedUser.username,
+      message,
+      timestamp,
+    }));
+
+    // Display the sent message immediately (optional)
+    displayMessage(loggedUser.username, message, timestamp);
+  } else {
+    console.warn('Empty message cannot be sent.');
+  }
+
+  // Clear the input field after sending the message
+  messageInput.value = '';
+});
+
+// Function to display a message in the chat
+function displayMessage(username, message, timestamp) {
+  const messageElement = document.createElement('div');
+  messageElement.classList.add('message');
+
+  // Render the message with the username and timestamp
+  messageElement.innerHTML = `
+    <p class="username">${username} <span class="timestamp">${timestamp}</span></p>
+    <p>${message}</p>
+  `;
+
+  messagesContainer.appendChild(messageElement);
+
+  // Scroll to the bottom when a new message is added
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-//  Handles updating the chat list when a user disconnects from the chat
-function onUserDisconnected(username) {
-    const userNode = document.getElementById(`user${username}`); // gets the user html node
-    if (userNode){
-        userNode.remove(); // removes the username/node from the user list 
-    }
+// Function to display notifications (e.g., user joins)
+function displayNotification(message) {
+  const notificationElement = document.createElement('div');
+  notificationElement.classList.add('message');
+  notificationElement.style.backgroundColor = '#e0e0e0'; // Style for notifications
+  notificationElement.innerHTML = `<p>${message}</p>`;
+  messagesContainer.appendChild(notificationElement);
 
+  // Scroll to the bottom when a new message is added
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
-
-// Handles updating the chat when a new message is receieved
-function onNewMessageReceived(username, timestamp, message) {
-    const chatBox = document.getElementById("ChatBox");
-    const newMessage = document.createElement("div"); // makes new div for new message
-    // formatting for the message displays
-    newMessage.innerHTML = `<strong>${username}</strong> [${new Date(timestamp).toLocaleTimeString()}]: ${message}`;
-    userList.appendChild(newMessage);
-    chatBox.scrollTop = chatBox.scrollHeight; // user can scroll to the new message 
-
-}
-
-// Handles sending a message to the server when the user sends a new message
-function onMessageSent(event) {
-  event.preventDefault();
-  const message = document.getElementById("message-input").value;
-  webSocket.send(JSON.stringify({ type: "new-message", message })); // message get to JSON
-  document.getElementById("message-input").value = ""; 
-}
-
-document.getElementById("message-form").addEventListener("submit", onMessageSent);

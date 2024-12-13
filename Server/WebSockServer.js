@@ -17,6 +17,18 @@ mongoose.connect('mongodb://localhost:27017/chatAppDB', {
   useUnifiedTopology: true,
 });
 
+// Define the schema for a message
+const messageSchema = new mongoose.Schema({
+  text: { type: String, required: true },
+  sender: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+});
+
+const Message = mongoose.model('Message', messageSchema); // Create model
+
+// Export it for later use
+export { Message };
+
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
