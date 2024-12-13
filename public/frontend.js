@@ -29,31 +29,53 @@ socket.addEventListener('message', (event) => {
 });
 
 // Send message when form is submitted
-messageForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-
-  const message = messageInput.value.trim();
-
-  if (message) {
-    const timestamp = new Date().toLocaleTimeString();
-
-    // Send the message with username and timestamp
-    socket.send(JSON.stringify({
-      type: 'message',
-      username: loggedUser.username,
-      message,
-      timestamp,
-    }));
-
-    // Display the sent message immediately (optional)
-    displayMessage(loggedUser.username, message, timestamp);
-  } else {
-    console.warn('Empty message cannot be sent.');
-  }
-
-  // Clear the input field after sending the message
-  messageInput.value = '';
-});
+// Send message when form is submitted
+messageForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+  
+    const message = messageInput.value;
+  
+    if (message.trim()) {
+      const timestamp = new Date().toLocaleTimeString();
+  
+      // Send the message with username and timestamp
+      socket.send(JSON.stringify({
+        type: 'message',
+        username: loggedUser.username,
+        message,
+        timestamp,
+      }));
+  
+      // Display the sent message immediately (optional)
+      displayMessage(loggedUser.username, message, timestamp);
+  
+      // Now send the message to the backend to be stored in the database
+      try {
+        const response = await fetch('/send-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: loggedUser.username,
+            message: message,
+            timestamp: timestamp,
+          }),
+        });
+  
+        const data = await response.json();
+  
+        if (!data.success) {
+          console.error("Error saving message:", data.error);
+        }
+      } catch (error) {
+        console.error("Error sending message to backend:", error);
+      }
+    }
+  
+    // Clear the input field after sending the message
+    messageInput.value = '';
+  });
 
 // Function to display a message in the chat
 function displayMessage(username, message, timestamp) {

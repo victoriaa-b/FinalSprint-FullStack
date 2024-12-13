@@ -5,7 +5,8 @@ const mongoose = require("mongoose");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const { isLoggedIn, isAdmin } = require("./controllers/userController");
-const User = require("./models/user"); // Ensure correct path to the User model
+const User = require("./models/user"); // User model
+const Message = require('./models/message'); // Message model
 
 const PORT = 3003;
 const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
@@ -40,14 +41,15 @@ let connectedClients = [];
 app.ws("/ws", (socket) => {
   let username;
 
-  socket.on("message", (rawMessage) => {
+  socket.on("message", async (rawMessage) => {
     const parsedMessage = JSON.parse(rawMessage);
 
     if (parsedMessage.type === "join") {
+      // Handle user join (same as before)
       username = parsedMessage.username;
       connectedClients.push({ socket, username });
 
-      // Notify all users that someone new has joined the app
+      // Notify all users about the new user
       connectedClients.forEach((client) => {
         client.socket.send(
           JSON.stringify({
@@ -57,8 +59,21 @@ app.ws("/ws", (socket) => {
         );
       });
     } else if (parsedMessage.type === "message") {
-      // Broadcast chat messages with username and timestamp
-      const timestamp = new Date().toLocaleTimeString();
+      // Save message to the database
+      const newMessage = new Message({
+        username,
+        message: parsedMessage.message,
+        timestamp: parsedMessage.timestamp,
+      });
+
+      try {
+        await newMessage.save(); // Save message to MongoDB
+        console.log('Message saved to database');
+      } catch (error) {
+        console.error('Error saving message:', error);
+      }
+
+      // Broadcast the message to all connected clients
       connectedClients.forEach((client) => {
         if (client.socket !== socket) {
           client.socket.send(
@@ -66,7 +81,7 @@ app.ws("/ws", (socket) => {
               type: "message",
               username,
               message: parsedMessage.message,
-              timestamp, // Add timestamp to the message
+              timestamp: parsedMessage.timestamp,
             })
           );
         }
@@ -76,7 +91,6 @@ app.ws("/ws", (socket) => {
 
   socket.on("close", () => {
     if (username) {
-      // Remove the client from the online list
       connectedClients = connectedClients.filter(
         (client) => client.username !== username
       );
@@ -203,11 +217,48 @@ app.get("/profile/:username", isLoggedIn, async (req, res) => {
 });
 
 // Chat route
-app.get('/chat', isLoggedIn, (req, res) => {
-  const loggedUser = req.session.user;
-  const loggedUsers = connectedClients.map(client => client.username);
+app.get("/chat", async (req, res) => {
+  const loggedUser = req.session.user; // Get the logged-in user
 
-  res.render('chat', { loggedUser, loggedUsers });
+  if (loggedUser) {
+    try {
+      // Fetch messages from the database
+      const messages = await Message.find().sort({ timestamp: 1 }); // Sort by timestamp to show in order
+
+      // Get logged-in users from connectedClients array
+      const loggedUsers = connectedClients.map(client => client.username);
+
+      res.render('chat', { loggedUser, messages, loggedUsers }); // Pass loggedUsers to the template
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+      res.status(500).send("Error loading chat messages");
+    }
+  } else {
+    res.redirect("/login"); // Redirect to login if user is not logged in
+  }
+});
+
+// Route to save a message in the database
+app.post("/send-message", async (req, res) => {
+  const { username, message, timestamp } = req.body;
+
+  try {
+    // Create a new message instance
+    const newMessage = new Message({
+      username,
+      message,
+      timestamp,
+    });
+
+    // Save the message to the database
+    await newMessage.save();
+
+    // Send a success response
+    res.status(200).json({ success: true, message: "Message saved!" });
+  } catch (error) {
+    console.error("Error saving message:", error);
+    res.status(500).json({ success: false, error: "Failed to save message" });
+  }
 });
 
 // Admin dashboard route
