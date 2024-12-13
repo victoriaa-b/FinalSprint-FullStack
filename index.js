@@ -4,7 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
-const { isLoggedIn, isAdmin } = require("./controllers/userController");
+const { isLoggedIn, isAdmin, getAllUsers } = require("./controllers/userController");
 const User = require("./models/user"); // User model
 const Message = require('./models/message'); // Message model
 
@@ -189,9 +189,6 @@ app.post("/signup", async (req, res) => {
 });
 
 // Dashboard and Profile routes
-app.get("/dashboard", isLoggedIn, (req, res) => {
-  res.render("authenticated", { user: req.session.user });
-});
 
 app.get("/profile/:username", isLoggedIn, async (req, res) => {
   try {
@@ -261,10 +258,50 @@ app.post("/send-message", async (req, res) => {
   }
 });
 
-// Admin dashboard route
-app.get("/admin-dashboard", [isLoggedIn, isAdmin], (req, res) => {
-  res.render("admin-dashboard", { user: req.session.user });
+// Admin dashboard
+app.get("/admin/dashboard", isLoggedIn, isAdmin, async (req, res) => {
+  try {
+    const users = await getAllUsers();
+    res.render("dashboard", {
+      user: req.session.user,
+      users: users, 
+    });
+  } catch (error) {
+    console.error("Error in admin dashboard:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
+
+
+// Admin route to ban a user
+app.post("/admin/ban-user", isLoggedIn, isAdmin, async (req, res) => {
+  const userId = req.body.userId;
+  try {
+    await User.findByIdAndUpdate(userId, { status: "banned" });
+    res.redirect("/admin/dashboard");
+  } catch (error) {
+    console.error("Error banning user:", error);
+    res.status(500).send("Failed to ban user");
+  }
+});
+
+// Admin route to remove a user
+app.post("/admin/remove-user", isLoggedIn, isAdmin, async (req, res) => {
+  const userId = req.body.userId;
+
+  try {
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+    console.log(`User with ID: ${userId} has been removed from the database`);
+    res.redirect("/admin/dashboard");
+  } catch (error) {
+    console.error("There was a Error removing user:", error);
+    res.status(500).send("Failed to remove user");
+  }
+});
+
 
 // Logout route
 app.get("/logout", (req, res) => {

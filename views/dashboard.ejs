@@ -2,3 +2,61 @@
 <!--View a list of all registered users.-->
 <!-- Remove or ban users from the site.-->
   <%- include('partials/header') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <main>
+    <section>
+      <h2>All Registered Accounts</h2>
+      <table border="1" cellspacing="0" cellpadding="10">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th> 
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% users.forEach(user => { %>
+            <tr>
+              <td><%= user._id %></td>
+              <td><%= user.username %></td>
+              <td><%= user.email %></td>
+              <td><%= user.role %></td>
+              <td><%= user.status || 'Active' %></td>
+              <!--ban and remove stlye needs to be worked out-->
+              <!-- <td>
+                <% if (user.role !== 'admin') { %>
+                  <form action="/admin/ban-user" method="POST" style="display: inline;">
+                    <input type="hidden" name="userId" value="<%= user._id %>">
+                    <button type="submit">Banned</button>
+                  </form>
+                  <form action="/admin/remove-user" method="POST" style="display: inline;">
+                    <input type="hidden" name="userId" value="<%= user._id %>">
+                    <button type="submit">Remove</button>
+                  </form>
+                <% } else { %>
+                  <span>Admin</span>
+                <% } %>
+              </td> -->
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2024 Admin Dashboard</p>
+  </footer>
+</body>
+</html>

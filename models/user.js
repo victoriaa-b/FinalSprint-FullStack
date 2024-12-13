@@ -11,6 +11,7 @@ const userModel = new mongoose.Schema({
   password: { type: String, required: true }, // account can have matching passwords
   role: { type: String, enum: ["admin", "user"], required: true },
   joinDate: { type: Date, default: Date.now },
+  status: { type: String, default: "active" }, // need to know if the user is banned or not
 });
 
 // Need to have the password harsh - DOUBLE CHECK  

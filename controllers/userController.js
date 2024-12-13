@@ -1,4 +1,5 @@
 // Middleware checks
+const User = require("../models/user");
 
 
 
@@ -17,4 +18,15 @@ function isAdmin(req, res, next) {
     }
     res.status(403).render("error", { message: "Access denied" });// gives 403 error 
 }
-module.exports = { isLoggedIn, isAdmin };
+// Need to take all of user in the database 
+async function getAllUsers() {
+  try {
+    const users = await User.find(); // Fetch all registered users from MongoDB
+    return users;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    throw error;
+  }
+}
+
+module.exports = { isLoggedIn, isAdmin, getAllUsers };
