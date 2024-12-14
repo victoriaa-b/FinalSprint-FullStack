@@ -1,9 +1,3 @@
-<!--- Chat display maybe -->
-<!---Behind login logic-->
-<!--Show all users that are online in the chat-->
-<!--Nofity users when somemone join with a message-->
-<!--Message need timestamp and user name-->
-<!--Need to double check wen socket connections-->
 <%- include('partials/header') %>
 
 <div class="container">
@@ -11,8 +5,10 @@
   <aside class="sidebar">
     <h3>Currently Logged-in Users</h3>
     <ul id="user-list">
+      <!-- Display currently logged-in user in the sidebar as a clickable link -->
+      <li><a href="/profile/<%= loggedUser.username %>"><%= loggedUser.username %></a></li>
       <% loggedUsers.forEach(user => { %>
-        <li><%= user %></li>
+        <li><a href="/profile/<%= user %>"><%= user %></a></li>
       <% }) %>
     </ul>
   </aside>
