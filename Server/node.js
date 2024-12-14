@@ -1,8 +1,8 @@
 const { MongoClient } = require("mongodb");
 
-const username = encodeURIComponent("<username>");
-const password = encodeURIComponent("<password>");
-const cluster = "<clusterName>";
+const username = encodeURIComponent("<BP-VB-AR>");
+const password = encodeURIComponent("<0krtYXhR3T6cTReU>");
+const cluster = "<KeyinJSFinal>";
 const authSource = "<authSource>";
 const authMechanism = "<authMechanism>";
 
@@ -15,7 +15,7 @@ async function run() {
   try {
     await client.connect();
 
-    const database = client.db("<dbName>");
+    const database = client.db("<KeyinJSFinal>");
     const ratings = database.collection("<collName>");
 
     const cursor = ratings.find();

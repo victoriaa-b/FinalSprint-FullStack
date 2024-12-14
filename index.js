@@ -6,10 +6,10 @@ const session = require("express-session");
 const bcrypt = require("bcrypt");
 const { isLoggedIn, isAdmin, getAllUsers } = require("./controllers/userController");
 const User = require("./models/user"); // User model
-const Message = require('./models/message'); // Message model
+const Message = require("./models/message"); // Message model
 
 const PORT = 3003;
-const MONGO_URI = "mongodb://localhost:27017/chatAppDB";
+const MONGO_URI = "mongodb://localhost:27017/KeyinJSFinal";
 
 const app = express();
 expressWs(app);
