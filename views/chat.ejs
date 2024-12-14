@@ -23,12 +23,6 @@
     <section class="chat-display">
       <div id="messages" class="messages">
         <!-- Display messages from the server -->
-        <% messages.forEach(message => { %>
-          <div class="message">
-            <p class="username"><%= message.username %> <span class="timestamp"><%= message.timestamp %></span></p>
-            <p><%= message.message %></p>
-          </div>
-        <% }) %>
       </div>
     </section>
 

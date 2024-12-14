@@ -47,6 +47,7 @@ let connectedClients = [];
 app.ws("/ws", (socket) => {
   let username;
 
+  // Handle incoming WebSocket messages
   socket.on("message", async (rawMessage) => {
     const parsedMessage = JSON.parse(rawMessage);
 
@@ -72,7 +73,7 @@ app.ws("/ws", (socket) => {
         );
       });
     } else if (parsedMessage.type === "message") {
-      // Save and broadcast the message as usual
+      // Save the message to the database
       const newMessage = new Message({
         username,
         message: parsedMessage.message,
@@ -80,19 +81,20 @@ app.ws("/ws", (socket) => {
       });
 
       try {
-        // Save the message to the database
         await newMessage.save();
 
-        // Send the message to all clients (including the sender)
+        // Broadcast the message to all clients except the sender
         connectedClients.forEach((client) => {
-          client.socket.send(
-            JSON.stringify({
-              type: "message",
-              username,
-              message: parsedMessage.message,
-              timestamp: parsedMessage.timestamp,
-            })
-          );
+          if (client.username !== username) {  // Exclude sender from receiving the message again
+            client.socket.send(
+              JSON.stringify({
+                type: "message",
+                username,
+                message: parsedMessage.message,
+                timestamp: parsedMessage.timestamp,
+              })
+            );
+          }
         });
       } catch (error) {
         console.error('Error saving message:', error);

@@ -16,8 +16,10 @@ socket.addEventListener('message', (event) => {
   console.log('Received data:', data); // Log incoming message
 
   if (data.type === 'message') {
-    // Display the message in the chat
-    displayMessage(data.username, data.message, data.timestamp);
+    // Only display the message if it's not from the current user
+    if (data.username !== loggedUser.username) {
+      displayMessage(data.username, data.message, data.timestamp);
+    }
   } else if (data.type === 'notification') {
     // Display notifications (user join/leave)
     displayNotification(data.message);
@@ -26,6 +28,7 @@ socket.addEventListener('message', (event) => {
     updateUserList(data.users);
   }
 });
+
 
 // Submit message to WebSocket server
 messageForm.addEventListener('submit', async (e) => {
