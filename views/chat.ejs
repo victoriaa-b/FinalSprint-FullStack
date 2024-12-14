@@ -11,13 +11,9 @@
   <aside class="sidebar">
     <h3>Currently Logged-in Users</h3>
     <ul id="user-list">
-      <% if (loggedUsers && loggedUsers.length > 0) { %>
-        <% loggedUsers.forEach(user => { %>
-          <li><%= user.username %></li>
-        <% }) %>
-      <% } else { %>
-        <li>No users are currently logged in.</li>
-      <% } %>
+      <% loggedUsers.forEach(user => { %>
+        <li><%= user %></li>
+      <% }) %>
     </ul>
   </aside>
 

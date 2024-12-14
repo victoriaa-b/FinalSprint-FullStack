@@ -26,6 +26,13 @@ app.use(
     secret: "chat-app-secret",
     resave: false,
     saveUninitialized: true,
+    cookie: {
+      // Set the path to only be relevant to a specific route or part of your app
+      path: '/',
+      // The 'secure' option ensures cookies are only sent over HTTPS (useful for production)
+      secure: false, // true if using HTTPS
+      sameSite: 'strict', // Prevents cookies from being sent in cross-site requests
+    }
   })
 );
 
@@ -41,15 +48,16 @@ let connectedClients = [];
 app.ws("/ws", (socket) => {
   let username;
 
+  // When a message is received through WebSocket
   socket.on("message", async (rawMessage) => {
     const parsedMessage = JSON.parse(rawMessage);
 
     if (parsedMessage.type === "join") {
-      // Handle user join (same as before)
+      // Handle user joining
       username = parsedMessage.username;
       connectedClients.push({ socket, username });
 
-      // Notify all users about the new user
+      // Notify all clients about the new user
       connectedClients.forEach((client) => {
         client.socket.send(
           JSON.stringify({
@@ -58,8 +66,21 @@ app.ws("/ws", (socket) => {
           })
         );
       });
+
+      // Send the previous messages from the DB to the new user
+      const messages = await Message.find().sort({ timestamp: 1 });
+      messages.forEach((msg) => {
+        socket.send(
+          JSON.stringify({
+            type: "message",
+            username: msg.username,
+            message: msg.message,
+            timestamp: msg.timestamp.toLocaleTimeString(),
+          })
+        );
+      });
     } else if (parsedMessage.type === "message") {
-      // Save message to the database
+      // Save the message to the database
       const newMessage = new Message({
         username,
         message: parsedMessage.message,
@@ -67,7 +88,7 @@ app.ws("/ws", (socket) => {
       });
 
       try {
-        await newMessage.save(); // Save message to MongoDB
+        await newMessage.save(); // Save message to DB
         console.log('Message saved to database');
       } catch (error) {
         console.error('Error saving message:', error);
@@ -89,14 +110,26 @@ app.ws("/ws", (socket) => {
     }
   });
 
+  // When the socket connection is closed (user leaves)
   socket.on("close", () => {
     if (username) {
       connectedClients = connectedClients.filter(
         (client) => client.username !== username
       );
+
+      // Notify all users that someone has left
+      connectedClients.forEach((client) => {
+        client.socket.send(
+          JSON.stringify({
+            type: "notification",
+            message: `${username} has left the chat.`,
+          })
+        );
+      });
     }
   });
 });
+
 
 
 // Routes
@@ -236,27 +269,25 @@ app.get("/chat", async (req, res) => {
 });
 
 // Route to save a message in the database
+// Route to save a message in the database
 app.post("/send-message", async (req, res) => {
   const { username, message, timestamp } = req.body;
 
   try {
-    // Create a new message instance
     const newMessage = new Message({
       username,
       message,
-      timestamp,
+      timestamp: new Date(timestamp),
     });
 
-    // Save the message to the database
     await newMessage.save();
-
-    // Send a success response
     res.status(200).json({ success: true, message: "Message saved!" });
   } catch (error) {
     console.error("Error saving message:", error);
     res.status(500).json({ success: false, error: "Failed to save message" });
   }
 });
+
 
 // Admin dashboard
 app.get("/admin/dashboard", isLoggedIn, isAdmin, async (req, res) => {
