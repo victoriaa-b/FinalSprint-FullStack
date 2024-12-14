@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 
-const username = encodeURIComponent("<>");
-const password = encodeURIComponent("<>");
+const username = encodeURIComponent("<BP-VB-AR>");
+const password = encodeURIComponent("<0krtYXhR3T6cTReU>");
 const cluster = "<KeyinJSFinal>";
 const authSource = "<authSource>";
 const authMechanism = "<authMechanism>";
