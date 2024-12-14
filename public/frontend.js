@@ -1,4 +1,4 @@
-const socket = new WebSocket("ws://localhost:3000/ws");
+const socket = new WebSocket("ws://localhost:3003/ws");
 
 const messageForm = document.getElementById('chat-form');
 const messageInput = document.getElementById('chat-message');
@@ -7,7 +7,6 @@ const messagesContainer = document.getElementById('messages');
 // On WebSocket connection open
 socket.addEventListener('open', () => {
   console.log('WebSocket connection established.');
-  // Send the "join" event when the user joins
   socket.send(JSON.stringify({ type: 'join', username: loggedUser.username }));
 });
 
@@ -17,11 +16,14 @@ socket.addEventListener('message', (event) => {
   console.log('Received data:', data); // Log incoming message
 
   if (data.type === 'message') {
+    // Display the message in the chat
     displayMessage(data.username, data.message, data.timestamp);
   } else if (data.type === 'notification') {
+    // Display notifications (user join/leave)
     displayNotification(data.message);
   } else if (data.type === 'updateUsers') {
-    updateUserList(data.users); // Update the user list in the sidebar
+    // Update the user list in the sidebar
+    updateUserList(data.users);
   }
 });
 
@@ -30,7 +32,7 @@ messageForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
   const message = messageInput.value.trim();
-  
+
   if (message) {
     const timestamp = new Date().toLocaleTimeString();
     socket.send(JSON.stringify({
@@ -40,7 +42,7 @@ messageForm.addEventListener('submit', async (e) => {
       timestamp,
     }));
 
-    // Display the sent message immediately
+    // Display the sent message immediately in the current user's chat window
     displayMessage(loggedUser.username, message, timestamp);
 
     // Save the message to the database
@@ -59,7 +61,7 @@ messageForm.addEventListener('submit', async (e) => {
     }
   }
 
-  messageInput.value = '';  // Clear input after sending
+  messageInput.value = ''; // Clear input after sending
 });
 
 // Function to display a message in the chat

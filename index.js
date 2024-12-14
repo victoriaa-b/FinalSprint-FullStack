@@ -80,13 +80,11 @@ app.ws("/ws", (socket) => {
       });
 
       try {
+        // Save the message to the database
         await newMessage.save();
-      } catch (error) {
-        console.error('Error saving message:', error);
-      }
 
-      connectedClients.forEach((client) => {
-        if (client.socket !== socket) {
+        // Send the message to all clients (including the sender)
+        connectedClients.forEach((client) => {
           client.socket.send(
             JSON.stringify({
               type: "message",
@@ -95,8 +93,10 @@ app.ws("/ws", (socket) => {
               timestamp: parsedMessage.timestamp,
             })
           );
-        }
-      });
+        });
+      } catch (error) {
+        console.error('Error saving message:', error);
+      }
     }
   });
 
