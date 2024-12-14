@@ -208,7 +208,7 @@ header{
   .message {
     padding: 10px;
     border-radius: 5px;
-    background-color: #f0f0f0;
+    background-color: #ffffff;
   }
   .message p {
     margin: 0;
@@ -224,18 +224,23 @@ header{
   .chat-footer {
     display: flex;
     width: 95%;
+    height: auto;
     border-top: 2px solid #ddd;
   }
   .chat-footer form{
+    width: 100%;
+    height: auto;
     display: flex;
     flex-direction: row;
   }
   .chat-footer input {
+    width: 80%;
+    height: 50px;
     padding: 10px;
     margin-right: 20px;
   }
   .chat-footer button {
-    width: 30%;
+    width: 20%;
     padding: 10px;
     background-color: #883291;
     color: white;
