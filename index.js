@@ -73,7 +73,21 @@ app.ws("/ws", (socket) => {
         );
       });
     } else if (parsedMessage.type === "message") {
-      // Save the message to the database
+      // Check if the user is banned before processing their message
+      const user = await User.findOne({ username });
+
+      if (user && user.status === 'banned') {
+        // If the user is banned, don't store or broadcast the message
+        socket.send(
+          JSON.stringify({
+            type: "notification",
+            message: "You are banned and cannot send messages.",
+          })
+        );
+        return; // Stop further processing
+      }
+
+      // Save the message to the database (only if the user is not banned)
       const newMessage = new Message({
         username,
         message: parsedMessage.message,
@@ -128,7 +142,6 @@ app.ws("/ws", (socket) => {
     }
   });
 });
-
 
 // Routes
 

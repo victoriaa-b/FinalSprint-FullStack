@@ -27,7 +27,7 @@
     </section>
 
     <!-- Chat input at the bottom -->
-    <footer class="chat-footer">
+    <div class="chat-footer">
       <form id="chat-form">
         <input 
           type="text" 
@@ -38,9 +38,11 @@
         />
         <button type="submit">Send</button>
       </form>
-    </footer>
+    </div>
   </main>
 </div>
+
+<%- include('partials/footer') %>
 
 <!-- Inject the loggedUser object into a client-side script -->
 <script>

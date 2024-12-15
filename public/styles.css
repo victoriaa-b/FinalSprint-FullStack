@@ -10,6 +10,7 @@ body {
     text-shadow: 1px 1px 1px #F6F6F6;
     flex-direction: column;
     padding-bottom: 50px;
+    overflow-x: hidden;
 }
 h2 {
     color: #72195a;
@@ -100,6 +101,7 @@ body .main-content, body header {
 }
 
 header{
+    width: 100%; 
     background-color: #cdc1ff; 
 }
 
@@ -175,10 +177,6 @@ header{
     
 }
 
-
-
-
-/* CHAT PAGE STYLING ****************************************************************/
 /* CHAT PAGE STYLING ****************************************************************/
 .container {
     display: flex;
