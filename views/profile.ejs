@@ -14,11 +14,10 @@
 
     <!--Depends on whos being viewed-->
       <% if (loggedUser.username === userRequest.username) { %>
-        <!-- Maybe add something here-->
       <% } else { %>
         <h2><%= userRequest.username %>'s Profile</h2>
       <% } %>
-
+  <!-- Profile shows the username and date the account was created--> 
       <div>
         <p><strong>Username:</strong> <%= userRequest.username %></p>
         <p><strong>User Joined on:</strong> <%= joinDate %></p>

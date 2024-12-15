@@ -14,14 +14,13 @@ const userModel = new mongoose.Schema({
   status: { type: String, default: "active" }, // need to know if the user is banned or not
 });
 
-// Need to have the password harsh - DOUBLE CHECK  
+// Password needs to be hashed
 userModel.pre('save', async function(next) {
 if (this.isModified("password")) {
     this.password = await bcrypt.hash(this.password, 10);
 }
 next();
 });
-
 
 const User = mongoose.model("User", userModel);
 module.exports = User;

@@ -4,8 +4,9 @@
     <div class="main-content">
         <h2>Sign Up</h2>
         <p>Please, fill in the following information to create an account.</p>
-
-        <div class="profile-box">
+<!--- The user names to fill in the username, password and email form, role will default as user -->
+        
+    <div class="profile-box">
             <form action="/signup" method="post" class="signup-form">
                 <% if (errorMessage) { %>
                     <p class="error-message"><%= errorMessage %></p>

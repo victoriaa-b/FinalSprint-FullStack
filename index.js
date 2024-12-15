@@ -152,7 +152,7 @@ app.get("/", async (req, res) => {
   const onlineUsers = connectedClients.length;
   let onlineMessage = " ";
   if (onlineUsers === 0) {
-    onlineMessage = "No one is currently online. Be the only one!";
+    onlineMessage = "Be the first one online!";
   } else if (onlineUsers < 2) {
     onlineMessage = "Only a couple of users are currently online. Join them!";
   } else {
@@ -233,7 +233,6 @@ app.post("/signup", async (req, res) => {
 });
 
 // Dashboard and Profile routes
-
 app.get("/profile/:username", isLoggedIn, async (req, res) => {
   try {
     const { username } = req.params;
@@ -279,7 +278,6 @@ app.get("/chat", async (req, res) => {
   }
 });
 
-// Route to save a message in the database
 // Route to save a message in the database
 app.post("/send-message", async (req, res) => {
   const { username, message, timestamp } = req.body;
@@ -343,7 +341,6 @@ app.post("/admin/remove-user", isLoggedIn, isAdmin, async (req, res) => {
     res.status(500).send("Failed to remove user");
   }
 });
-
 
 // Logout route
 app.get("/logout", (req, res) => {
