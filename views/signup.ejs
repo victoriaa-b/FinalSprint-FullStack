@@ -1,45 +1,43 @@
 <!--Ensure that usernames are unique (do not allow users to register with a username that already exists)--->
 <!--Provide meaningful error messages if the signup fails.-->
 <%- include('partials/header') %>
-<div class="main-content">
-    <h2>Sign Up</h2>
-    <p>Please, fill in the following information to create an account.</p>
+    <div class="main-content">
+        <h2>Sign Up</h2>
+        <p>Please, fill in the following information to create an account.</p>
 
-    <div class="profile-box">
-        <form action="/signup" method="post" class="signup-form">
-            <% if (errorMessage) { %>
-                <p class="error-message"><%= errorMessage %></p>
-            <% } %>
+        <div class="profile-box">
+            <form action="/signup" method="post" class="signup-form">
+                <% if (errorMessage) { %>
+                    <p class="error-message"><%= errorMessage %></p>
+                <% } %>
 
-            <div class="form-input-container">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" required>
-            </div>
+                <div class="form-input-container">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
 
-            <div class="form-input-container">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
+                <div class="form-input-container">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
 
-            <div class="form-input-container">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
+                <div class="form-input-container">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
 
-            <div class="form-input-container">
-                <label for="role">Role:</label>
-                <select id="role" name="role" required>
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
-            </div>
+                <div class="form-input-container">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="action-button full-width">Sign Up</button>
-        </form>
+                <button type="submit" class="action-button full-width">Sign Up</button>
+            </form>
 
-        <p class="login-prompt">Already have an account? <a href="/login" class="register-link">Log in!</a></p>
+            <p class="login-prompt">Already have an account? <a href="/login" class="register-link">Log in!</a></p>
+        </div>
     </div>
-</div>
-</body>
 <%- include('partials/footer') %>
-</html>

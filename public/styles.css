@@ -1,4 +1,8 @@
 /* Keep names with - inorder to follow template and not confuses us */
+html, body {
+  overflow-x: hidden;
+}
+
 body {
     background: #F5EFFF;
     height: 100%;
@@ -100,8 +104,8 @@ body .main-content, body header {
 }
 
 header{
-    width: 100%; 
-    background-color: #cdc1ff; 
+  width: 100%;
+  background-color: #cdc1ff;
 }
 
 
@@ -302,9 +306,7 @@ tbody tr:hover {
     font-size: 16px;
     position: relative;
     bottom: 0;
-    overflow-x: hidden;
     width: 100%;
-    overflow-y: hidden;
 }
 footer a {
     color: #00a6fb; 

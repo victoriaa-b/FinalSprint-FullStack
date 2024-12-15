@@ -1,54 +1,54 @@
 <%- include('partials/header') %>
 
-<div class="container">
-  <!-- Sidebar for logged-in users -->
-      <br/>
-  <aside class="sidebar">
-    <h3>Currently Logged-in Users</h3>
-    <ul id="user-list">
-      <!-- Display currently logged-in user in the sidebar as a clickable link -->
-      <li><a href="/profile/<%= loggedUser.username %>"><%= loggedUser.username %></a></li>
-      <% loggedUsers.forEach(user => { %>
-        <li><a href="/profile/<%= user %>"><%= user %></a></li>
-      <% }) %>
-    </ul>
-  </aside>
+  <div class="container">
+    <!-- Sidebar for logged-in users -->
+        <br/>
+    <aside class="sidebar">
+      <h3>Currently Logged-in Users</h3>
+      <ul id="user-list">
+        <!-- Display currently logged-in user in the sidebar as a clickable link -->
+        <li><a href="/profile/<%= loggedUser.username %>"><%= loggedUser.username %></a></li>
+        <% loggedUsers.forEach(user => { %>
+          <li><a href="/profile/<%= user %>"><%= user %></a></li>
+        <% }) %>
+      </ul>
+    </aside>
 
-  <!-- Main content for chat -->
-  <main class="main-content">
-    <section class="user-info">
-      <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
-    </section>
+    <!-- Main content for chat -->
+    <main class="main-content">
+      <section class="user-info">
+        <p>You are logged in as: <strong><%= loggedUser.username %></strong></p>
+      </section>
 
-    <!-- Chat display area -->
-    <section class="chat-display">
-      <div id="messages" class="messages">
-        <!-- Display messages from the server -->
+      <!-- Chat display area -->
+      <section class="chat-display">
+        <div id="messages" class="messages">
+          <!-- Display messages from the server -->
+        </div>
+      </section>
+
+      <!-- Chat input at the bottom -->
+      <div class="chat-footer">
+        <form id="chat-form">
+          <input 
+            type="text" 
+            id="chat-message" 
+            name="message" 
+            placeholder="Type your message..." 
+            required
+          />
+          <button type="submit">Send</button>
+        </form>
       </div>
-    </section>
+    </main>
+  </div>
 
-    <!-- Chat input at the bottom -->
-    <div class="chat-footer">
-      <form id="chat-form">
-        <input 
-          type="text" 
-          id="chat-message" 
-          name="message" 
-          placeholder="Type your message..." 
-          required
-        />
-        <button type="submit">Send</button>
-      </form>
-    </div>
-  </main>
-</div>
+    <!-- Inject the loggedUser object into a client-side script -->
+  <script>
+    const loggedUser = <%- JSON.stringify(loggedUser) %>;
+  </script>
+
+  <!-- Include the external frontend.js -->
+  <script src="/frontend.js" type="application/javascript"></script>
 
 <%- include('partials/footer') %>
-
-<!-- Inject the loggedUser object into a client-side script -->
-<script>
-  const loggedUser = <%- JSON.stringify(loggedUser) %>;
-</script>
-
-<!-- Include the external frontend.js -->
-<script src="/frontend.js" type="application/javascript"></script>
