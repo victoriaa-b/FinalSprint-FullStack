@@ -12,23 +12,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Gabarito:wght@400..900&family=Limelight&family=Lora:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/styles.css">
 
-
-<div class="header-container">
-    <h1 class="logo">ChatterBox</h1>
-    <nav class="navbar">
-        <% if (user) { %>
-            <a href="/profile/<%= user.username %>">My Profile</a>
-            <a href="/chat">Chat</a>
-            <% if (user.role === 'admin') { %>
-         <a href="/admin/dashboard">Dashboard</a>
-
-            <% } %>
-            <a href="/logout" class="logout-button">Logout</a>
-        <% } else { %>
-            <a href="/">Home</a>
-            <a href="/signup">Register</a>
-            <a href="/login">Login</a>
-        <% } %>
-    </nav>
-</div>
+    <div class="header-container">
+        <h1 class="logo">ChatterBox</h1>
+        <nav class="navbar">
+            <ul>
+                <% if (user) { %>
+                    <li><a href="/profile/<%= user.username %>">My Profile</a></li>
+                    <li><a href="/chat">Chat</a></li>
+                    <% if (user.role === 'admin') { %>
+                        <li><a href="/admin/dashboard">Dashboard</a></li>
+                    <% } %>
+                    <li><a href="/logout" class="logout-button">Logout</a></li>
+                <% } else { %>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/signup">Register</a></li>
+                    <li><a href="/login">Login</a></li>
+                <% } %>
+            </ul>
+        </nav>
+    </div>
 </header>
